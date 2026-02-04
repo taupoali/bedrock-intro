@@ -1,0 +1,26 @@
+import boto3
+
+client = boto3.client("bedrock-runtime", region_name="us-east-1")
+
+model_id = "amazon.nova-micro-v1:0"  # use the same model throughout the lab
+
+prompt = "Explain Amazon S3"
+
+response = client.converse(
+    modelId=model_id,
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {"text": prompt}
+            ]
+        }
+    ],
+    inferenceConfig={
+        "maxTokens": 300
+    }
+)
+
+output_text = response["output"]["message"]["content"][0]["text"]
+
+print(output_text)

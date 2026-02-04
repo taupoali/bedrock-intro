@@ -23,13 +23,15 @@ print(text)
 print("\nUsage:", usage)
 
 
-pairs = [
-    ("Plain English", "Explain Amazon S3 in one sentence."),
-    ("Lots of punctuation", "Explain Amazon S3!!! In ONE sentence... (seriously)"),
-    ("Emoji + symbols", "Explain Amazon S3 in one sentence 🙂📦☁️ #storage"),
-    ("Long compound word", "Explain antidisestablishmentarianism in one sentence.")
+
+prompts = [
+    ("Plain", "Explain Amazon S3 in one sentence."),
+    ("Extra punctuation", "Explain Amazon S3!!! In ONE sentence..."),
+    ("Extra whitespace", "Explain   Amazon    S3   in   one   sentence."),
+    ("Emoji added", "Explain Amazon S3 in one sentence 🙂📦☁️")
 ]
 
-for label, p in pairs:
+
+for label, p in prompts:
     _, usage = ask(model_id, p, max_tokens=60)
     print(label, "->", usage)
