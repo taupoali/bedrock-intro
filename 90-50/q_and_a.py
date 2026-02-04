@@ -10,7 +10,7 @@ MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "anthropic.claude-3-haiku-20240307-v1:0
 BASE_DIR = Path(__file__).parent
 text = (BASE_DIR / "aws_incident.txt").read_text(encoding="utf-8")
 
-question = "What will improve recovery time?"
+question = "How long did this incident last?"
 
 prompt = (
     "You are a question-answering assistant.\n"

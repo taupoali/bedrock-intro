@@ -16,6 +16,7 @@ def ask(model_id: str, prompt: str, max_tokens: int = 200):
     return text, usage
 
 model_id = "amazon.nova-micro-v1:0"
+
 prompt = "Explain Amazon S3 in one paragraph."
 
 text, usage = ask(model_id, prompt)
