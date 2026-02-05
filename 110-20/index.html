@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Marketing Email Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 2rem auto; }
+    label { display:block; margin-top: 1rem; font-weight: bold; }
+    input, textarea, select { width: 100%; padding: 0.5rem; }
+    button { margin-top: 1rem; padding: 0.75rem 1rem; }
+    pre { background: #f4f4f4; padding: 1rem; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Marketing Email Generator</h1>
+
+  <label>Product name</label>
+  <input id="product_name" value="CloudCost Guardian"/>
+
+  <label>Product description</label>
+  <textarea id="product_description">A dashboard that spots AWS waste and recommends savings.</textarea>
+
+  <label>Audience</label>
+  <input id="audience" value="FinOps managers at mid-size SaaS companies"/>
+
+  <label>Goal</label>
+  <input id="goal" value="Book a demo"/>
+
+  <label>Tone</label>
+  <select id="tone">
+    <option>friendly and confident</option>
+    <option>formal and professional</option>
+    <option>playful and punchy</option>
+  </select>
+
+  <label>Length</label>
+  <select id="length">
+    <option>short</option>
+    <option>medium</option>
+  </select>
+
+  <button id="btn">Generate email</button>
+
+  <h2>Result</h2>
+  <div id="status"></div>
+  <pre id="out"></pre>
+
+<script>
+  const API_URL = "https://3sbcul8kbk.execute-api.us-east-1.amazonaws.com/generate-email"; // e.g. https://abc123.execute-api.us-east-1.amazonaws.com/
+
+  document.getElementById("btn").addEventListener("click", async () => {
+    const payload = {
+      product_name: document.getElementById("product_name").value,
+      product_description: document.getElementById("product_description").value,
+      audience: document.getElementById("audience").value,
+      goal: document.getElementById("goal").value,
+      tone: document.getElementById("tone").value,
+      length: document.getElementById("length").value
+    };
+
+    document.getElementById("status").textContent = "Generating...";
+    document.getElementById("out").textContent = "";
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Request failed");
+
+      document.getElementById("status").textContent = "Done ✅";
+
+      const formatted =
+        `Subject lines:\n- ${data.subject_lines.join("\n- ")}\n\n` +
+        `Preheader:\n${data.preheader}\n\n` +
+        `Email:\n${data.email_body}\n\n` +
+        `CTA:\n${data.cta}`;
+
+      document.getElementById("out").textContent = formatted;
+    } catch (err) {
+      document.getElementById("status").textContent = "Error ❌";
+      document.getElementById("out").textContent = err.message;
+    }
+  });
+</script>
+</body>
+</html>
