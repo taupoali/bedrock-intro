@@ -1,0 +1,7 @@
+RunITAnywhere is a SaaS platform designed to help organizations identify, track and run simple compute jobs anywhere.
+
+The product analyzes the comparative realtime compute per second costs of hyperscale platforms like AWS, Azure and GCP as well as other hosted solutions like CloudFlare so that customers can choose to deploy to EC2 or AzureVM or ECS spot.
+
+RunITAnywhere is intended for FinOps teams, cloud platform teams, and engineering leaders who are responsible for managing cloud compute costs at scale and wish to make compute asset placement decisions based on cost.
+
+The platform provides a web-based dashboard, scheduled reports, and alerting for significant cost anomalies. The platform connects to git repositories and automates the deployment of approved apps to new compute platforms based on cost containment policies.

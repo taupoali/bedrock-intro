@@ -1,0 +1,9 @@
+RunITAnywhere does not perform automatic undeploy and redeploy actions based on cost movement, it only advises.
+
+All optimization recommendations must be reviewed and either invoked in product or performed manually. Only some undeploy and deploy actions have been implemented, for example to move from EC2 to Azure VM exists, but not from Lambda to Azure Functions; that would require manual action at this time.
+
+The platform does not support real-time cost analysis in the Starter edition.
+
+At this time only GitHub git repos are supported.
+
+Not all regions of each cloud provider are currently supported. Only American and European regions are currently implemented.

@@ -1,0 +1,44 @@
+RinITAnywhere integrates with the following cloud providers
+- AWS
+- Azure
+- GCP
+- CloudFlare
+
+The platform currently supports integration with:
+- AWS EC2 Spot Pricing
+- AWS ECS
+- AWS EC2
+- AWS EKS
+- AWS Lambda
+- AWS Cost Explorer
+- AWS CloudWatch
+- AWS Organizations
+- GCP Preemptimple VMs
+- GCP Cloud Run
+- GCP GKE
+- GCP Cloud Functions
+- GCP Cost Management
+- GCP Cloud Monitoring
+- GCP Resource Manager
+- Cloudflare Workers
+- Cloudflare Billing & Analytics
+- Cloudflare Accounts & Organizations
+- Azure Spot Virtual Machines
+- Azure Container Apps / Container Instances
+- Azure Virtual Machines
+- Azure AKS
+- Azure Functions
+- Azure Cost Management
+- Azure Monitorin
+- Azure Management Groups
+
+RunITAnywhere supports the following git providers
+- GitHub
+
+RunITAnywhere does not currently integrate with
+- Oracle Cloud
+- GitLab
+- BitBucket
+- CodeCommit
+
+Support for additional hosting providers services may be added in future releases.

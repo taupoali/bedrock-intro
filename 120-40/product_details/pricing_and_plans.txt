@@ -1,0 +1,9 @@
+RunITAnywhere is offered under three pricing plans: Starter, Professional, and Enterprise.
+
+The Starter plan supports a single cloud account and up to 10 git repos and includes basic cost visibility, integrated app deployment and monthly summary reports.
+
+The Professional plan supports up to 100 cloud accounts, 1000 git repos and includes realtime cost analysis, integrated app deployment, optimization recommendations, and email alerts.
+
+The Enterprise plan supports unlimited cloud accounts, unlimited git repos and and includes custom reporting, role-based access control, SAML & OpenID authentication,and priority support.
+
+Pricing is based on the number of cloud accounts connected to the platform.

@@ -1,0 +1,7 @@
+RunITAnywhere uses a least-privilege security model when accessing customer cloud accounts.
+
+All customer data is encrypted at rest and in transit using industry-standard encryption mechanisms.
+
+Access to the RunITAnywhere dashboard is protected using multi-factor authentication.
+
+The platform is designed to align with common security best practices but is not currently certified for specific compliance frameworks such as SOC 2 or ISO 27001.

@@ -1,0 +1,7 @@
+If RunITAnywhere is not displaying cost data, verify that the required permission is defined correctly in the target cloud account.
+
+Ensure that the cost management tools of your cloud provider are enabled in the cloud account and that the account has sufficient billing data available.
+
+If reports are not being delivered, check that notification email addresses are configured correctly in the dashboard.
+
+For persistent issues, customers should contact RunITAnywhere support.
