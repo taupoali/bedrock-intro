@@ -159,8 +159,8 @@ def fallback_message(category: str) -> str:
 
 # TODO (required): Set this to a model you have access to, in the same AWS region.
 # Examples might include Anthropic Claude or Amazon Nova text models.
-MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "REPLACE_WITH_YOUR_MODEL_ID")
-
+#MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "REPLACE_WITH_YOUR_MODEL_ID")
+MODEL_ID = "amazon.nova-micro-v1:0"
 
 def bedrock_text_generate(prompt: str, max_tokens: int = 300) -> str:
     """

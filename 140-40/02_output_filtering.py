@@ -38,7 +38,6 @@ HARMFUL_OUTPUT_KEYWORDS = [
 ]
 
 TOXIC_OUTPUT_KEYWORDS = [
-    # Keep this short for the lab; you’re teaching the pattern, not building moderation.
     "hate",
     "kill yourself",
     "racial slur",
