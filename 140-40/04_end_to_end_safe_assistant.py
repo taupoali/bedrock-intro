@@ -19,6 +19,7 @@ from typing import List, Optional
 
 import boto3
 
+MODEL_ID = "amazon.nova-micro-v1:0"
 
 # ============================================================
 # 1) Shared data structures
@@ -160,7 +161,7 @@ def fallback_message(category: str) -> str:
 # TODO (required): Set this to a model you have access to, in the same AWS region.
 # Examples might include Anthropic Claude or Amazon Nova text models.
 #MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "REPLACE_WITH_YOUR_MODEL_ID")
-MODEL_ID = "amazon.nova-micro-v1:0"
+
 
 def bedrock_text_generate(prompt: str, max_tokens: int = 300) -> str:
     """
@@ -170,7 +171,7 @@ def bedrock_text_generate(prompt: str, max_tokens: int = 300) -> str:
     If your chosen model does not support converse in your environment,
     you may need to switch to invoke_model with that model’s native schema.
     """
-    client = boto3.client("bedrock-runtime")
+    client = boto3.client("bedrock-runtime",region_name="us-east-1")
 
     response = client.converse(
         modelId=MODEL_ID,
@@ -190,6 +191,7 @@ def bedrock_text_generate(prompt: str, max_tokens: int = 300) -> str:
     output_message = response["output"]["message"]
     parts = output_message.get("content", [])
     texts = [p.get("text", "") for p in parts if isinstance(p, dict)]
+
     return "\n".join(t for t in texts if t).strip()
 
 
@@ -224,6 +226,7 @@ def main() -> None:
         # Step 2: Model call + exception safety
         try:
             model_text = bedrock_text_generate(user_prompt)
+            print(f"Model response length: {len(model_text)} chars")
         except Exception:
             # Keep error details out of the learner UX; just provide a safe fallback.
             print("\n[MODEL ERROR]")
