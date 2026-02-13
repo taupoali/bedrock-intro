@@ -1,0 +1,6 @@
+New Starter Onboarding (Week 1)
+
+- Day 1: Log in to your laptop and change your temporary password in ServiceHub.
+- Set up MFA as part of first-day security setup.
+- Request access to required systems via ServiceHub access requests.
+- Managers must confirm system access requirements before IT provisions access.

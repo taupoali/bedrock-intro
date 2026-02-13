@@ -1,0 +1,7 @@
+VPN Access Request (ServiceHub)
+
+- VPN access is required for connecting to internal systems when offsite.
+- Request VPN access via ServiceHub → Access Requests → VPN Access.
+- Approval is required from your line manager and the IT Access Approvers group.
+- MFA is mandatory for VPN access.
+- Supported devices: company-managed laptops only.

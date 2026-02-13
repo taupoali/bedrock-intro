@@ -1,0 +1,6 @@
+Acceptable Use (Security Summary)
+
+- Do not attempt to bypass security controls (including MFA).
+- Do not request or share personal employee data unless explicitly authorized.
+- Report suspected phishing emails to the Security team.
+- Use company tools for work purposes only.

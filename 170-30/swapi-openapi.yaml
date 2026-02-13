@@ -1,0 +1,64 @@
+openapi: "3.0.0"
+info:
+  title: "SWAPI Tools"
+  version: "1.0.0"
+paths:
+  /people:
+    get:
+      description: "Search Star Wars characters by name. Use this when the user gives a name and you need matches."
+      operationId: "search_people"
+      x-requireConfirmation: DISABLED
+      parameters:
+        - name: search
+          in: query
+          description: "Character name to search for (e.g., luke, leia, vader)."
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Search results"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name: { type: string }
+                        birth_year: { type: string }
+                        gender: { type: string }
+                        url: { type: string }
+
+  /people/{id}:
+    get:
+      description: "Get details for a character by numeric id (e.g., 1). Use this when you already know the character id."
+      operationId: "get_person_by_id"
+      x-requireConfirmation: ENABLED
+      parameters:
+        - name: id
+          in: path
+          description: "Numeric character id (e.g., 1 for Luke Skywalker)."
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Character details"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name: { type: string }
+                  height: { type: string }
+                  mass: { type: string }
+                  hair_color: { type: string }
+                  eye_color: { type: string }
+                  birth_year: { type: string }
+                  gender: { type: string }

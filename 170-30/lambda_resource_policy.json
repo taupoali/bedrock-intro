@@ -1,0 +1,17 @@
+{
+  "Sid": "AllowBedrockAgentInvoke",
+  "Effect": "Allow",
+  "Principal": {
+    "Service": "bedrock.amazonaws.com"
+  },
+  "Action": "lambda:InvokeFunction",
+  "Resource": "arn:aws:lambda:us-east-1:123456789012:function:bedrock-agent-swapi-tool",
+  "Condition": {
+    "StringEquals": {
+      "AWS:SourceAccount": "123456789012"
+    },
+    "ArnLike": {
+      "AWS:SourceArn": "arn:aws:bedrock:us-east-1:123456789012:agent/*"
+    }
+  }
+}
