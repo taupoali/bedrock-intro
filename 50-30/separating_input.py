@@ -2,7 +2,7 @@ import boto3
 
 client = boto3.client("bedrock-runtime", region_name="us-east-1")
 
-model_id = "amazon.nova-micro-v1:0"  # use the same model throughout the lab
+model_id = "us.meta.llama3-2-3b-instruct-v1:0"  # use the same model throughout the lab
 
 prompt = """
 Instruction: You are an AWS instructor explaining concepts to beginners.

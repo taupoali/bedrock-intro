@@ -15,7 +15,7 @@ def ask(model_id: str, prompt: str, max_tokens: int = 200):
     usage = resp.get("usage", {})
     return text, usage
 
-model_id = "amazon.nova-micro-v1:0"
+model_id = "us.meta.llama3-1-8b-instruct-v1:0"
 base_prompt = "Summarize the following text in 10 bullet points:\n\n"
 
 paragraph = (
