@@ -41,18 +41,34 @@ Input:
 {input_text}
 """.strip()
 
+    print("Calling Bedrock model:", MODEL_ID)
+    
     # 4) Invoke Bedrock (same invocation pattern)
-    br_resp = bedrock.converse(
-        modelId=MODEL_ID,
-        messages=[{"role": "user", "content": [{"text": prompt}]}],
-        inferenceConfig={
-            "maxTokens": 300,
-            "temperature": 0.3,
-            "topP": 0.9
-        }
-    )
+    try:
+        br_resp = bedrock.converse(
+            modelId=MODEL_ID,
+            messages=[{"role": "user", "content": [{"text": prompt}]}],
+            inferenceConfig={
+                "maxTokens": 300,
+                "temperature": 0.3,
+                "topP": 0.9
+            }
+        )
+        print("Bedrock call successful")
+    except Exception as e:
+        print(f"ERROR calling Bedrock: {type(e).__name__}: {str(e)}")
+        raise
 
-    summary_text = br_resp["output"]["message"]["content"][0]["text"]
+    # Extract text from response (handle different content block types)
+    summary_text = ""
+    for block in br_resp["output"]["message"]["content"]:
+        if "text" in block:
+            summary_text += block["text"]
+    
+    if not summary_text:
+        print(f"WARNING: No text found in response. Response structure: {br_resp['output']['message']['content']}")
+        summary_text = "Error: No output generated"
+    
     print("Generated summary length:", len(summary_text))
 
     # 5) Write output back to S3 under output/

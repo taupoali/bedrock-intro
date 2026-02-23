@@ -15,6 +15,7 @@ import re
 from typing import List, Dict, Any
 
 import boto3
+from botocore.exceptions import ClientError
 
 MODEL_ID = "us.meta.llama3-2-3b-instruct-v1:0"
 
@@ -188,7 +189,16 @@ def bedrock_text_generate(prompt: str, max_tokens: int = 300) -> str:
             "maxTokens": max_tokens,
             "temperature": 0.2,
         },
+        guardrailConfig={
+            "guardrailIdentifier": "o3sfyk8es33h",
+            "guardrailVersion": "1"
+        }
     )
+
+    # Check if guardrail intervened
+    stop_reason = response.get("stopReason")
+    if stop_reason == "guardrail_intervened":
+        raise Exception("GUARDRAIL_BLOCKED")
 
     # Extract plain text from the response structure
     output_message = response["output"]["message"]
@@ -218,29 +228,36 @@ def main() -> None:
             print("Goodbye.")
             break
 
-        # Step 1: Input filtering
+        # Step 1: Input filtering (custom rules)
         in_check = is_prompt_allowed(user_prompt)
         if not in_check["allowed"]:
-            print("\n[BLOCKED INPUT]")
+            print("\n[BLOCKED BY INPUT FILTER]")
+            print(f"Category: {in_check['category']}")
             print(fallback_message(in_check["category"]))
             print()
             continue
 
-        # Step 2: Model call + exception safety
+        # Step 2: Model call with guardrail
         try:
             model_text = bedrock_text_generate(user_prompt)
             print(f"Model response length: {len(model_text)} chars")
-        except Exception:
-            # Keep error details out of the learner UX; just provide a safe fallback.
-            print("\n[MODEL ERROR]")
-            print(fallback_message("unknown"))
+        except Exception as e:
+            error_msg = str(e)
+            if "GUARDRAIL_BLOCKED" in error_msg:
+                print("\n[BLOCKED BY GUARDRAIL]")
+                print("The request was blocked by the Bedrock Guardrail.")
+                print(fallback_message("harmful"))
+            else:
+                print("\n[MODEL ERROR]")
+                print(fallback_message("unknown"))
             print()
             continue
 
-        # Step 3: Output filtering
+        # Step 3: Output filtering (custom rules)
         out_check = is_response_allowed(model_text)
         if not out_check["allowed"]:
-            print("\n[BLOCKED OUTPUT]")
+            print("\n[BLOCKED BY OUTPUT FILTER]")
+            print(f"Category: {out_check['category']}")
             print(fallback_message("output_unsafe"))
             print()
             continue

@@ -2,7 +2,7 @@ import json
 import boto3
 
 REGION = "us-east-1"
-MODEL_ID = "amazon.nova-micro-v1:0"
+MODEL_ID = "us.meta.llama3-2-3b-instruct-v1:0"
 
 brt = boto3.client("bedrock-runtime", region_name=REGION)
 

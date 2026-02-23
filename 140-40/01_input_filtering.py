@@ -8,17 +8,7 @@ Run:
   python 01_input_filtering.py
 """
 
-from __future__ import annotations
-
-from dataclasses import dataclass
-from typing import List, Tuple
-
-
-@dataclass(frozen=True)
-class FilterResult:
-    allowed: bool
-    category: str  # e.g., "ok", "privacy", "harmful", "injection"
-    reason: str
+from typing import List, Dict
 
 
 # ------------------------------------------------------------
@@ -75,42 +65,45 @@ def contains_any(haystack: str, phrases: List[str]) -> bool:
     return any(phrase in haystack for phrase in phrases)
 
 
-def is_prompt_allowed(prompt: str) -> FilterResult:
+def is_prompt_allowed(prompt: str) -> Dict[str, any]:
     """
     Very simple input filter:
       1) privacy checks
       2) harmful/illegal checks
       3) injection checks
 
-    Returns a FilterResult with category + reason for learner visibility.
+    Returns a dictionary with:
+      - allowed: bool
+      - category: str (e.g., "ok", "privacy", "harmful", "injection")
+      - reason: str
     """
     p = normalize(prompt)
 
     if contains_any(p, PRIVACY_BLOCKLIST):
-        return FilterResult(
-            allowed=False,
-            category="privacy",
-            reason="Prompt appears to request personal/sensitive data (privacy risk).",
-        )
+        return {
+            "allowed": False,
+            "category": "privacy",
+            "reason": "Prompt appears to request personal/sensitive data (privacy risk).",
+        }
 
     if contains_any(p, HARMFUL_BLOCKLIST):
-        return FilterResult(
-            allowed=False,
-            category="harmful",
-            reason="Prompt appears to request harmful or illegal instructions.",
-        )
+        return {
+            "allowed": False,
+            "category": "harmful",
+            "reason": "Prompt appears to request harmful or illegal instructions.",
+        }
 
     if contains_any(p, INJECTION_BLOCKLIST):
-        return FilterResult(
-            allowed=False,
-            category="injection",
-            reason="Prompt looks like a prompt-injection attempt.",
-        )
+        return {
+            "allowed": False,
+            "category": "injection",
+            "reason": "Prompt looks like a prompt-injection attempt.",
+        }
 
     # TODO (optional): Add a new category, e.g. "hate/toxicity"
     # Hint: create a new LIST like the others, then add another if-statement here.
 
-    return FilterResult(allowed=True, category="ok", reason="")
+    return {"allowed": True, "category": "ok", "reason": ""}
 
 
 def run_tests() -> None:
@@ -137,11 +130,11 @@ def run_tests() -> None:
 
     for i, prompt in enumerate(test_prompts, start=1):
         result = is_prompt_allowed(prompt)
-        status = "ALLOW" if result.allowed else "BLOCK"
-        print(f"{i:02d}. {status} | {result.category}")
+        status = "ALLOW" if result["allowed"] else "BLOCK"
+        print(f"{i:02d}. {status} | {result['category']}")
         print(f"    Prompt: {prompt}")
-        if not result.allowed:
-            print(f"    Reason: {result.reason}")
+        if not result["allowed"]:
+            print(f"    Reason: {result['reason']}")
         print()
 
 

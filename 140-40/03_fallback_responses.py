@@ -8,8 +8,6 @@ Run:
   python 03_fallback_responses.py
 """
 
-from __future__ import annotations
-
 
 def fallback_message(category: str) -> str:
     """

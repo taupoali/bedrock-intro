@@ -8,18 +8,8 @@ Run:
   python 02_output_filtering.py
 """
 
-from __future__ import annotations
-
-from dataclasses import dataclass
 import re
-from typing import List
-
-
-@dataclass(frozen=True)
-class FilterResult:
-    allowed: bool
-    category: str  # e.g., "ok", "privacy", "harmful", "toxicity"
-    reason: str
+from typing import List, Dict
 
 
 # ------------------------------------------------------------
@@ -56,50 +46,55 @@ def contains_any(haystack: str, phrases: List[str]) -> bool:
     return any(phrase in haystack for phrase in phrases)
 
 
-def is_response_allowed(text: str) -> FilterResult:
+def is_response_allowed(text: str) -> Dict[str, any]:
     """
     Output filter:
       1) Detect likely sensitive info (emails, card-like numbers)
       2) Detect harmful guidance keywords
       3) Detect toxic language keywords
+    
+    Returns a dictionary with:
+      - allowed: bool
+      - category: str (e.g., "ok", "privacy", "harmful", "toxicity")
+      - reason: str
     """
     t = normalize(text)
 
     # Privacy checks (very basic)
     if EMAIL_PATTERN.search(text):
-        return FilterResult(
-            allowed=False,
-            category="privacy",
-            reason="Response appears to contain an email address (potential personal data).",
-        )
+        return {
+            "allowed": False,
+            "category": "privacy",
+            "reason": "Response appears to contain an email address (potential personal data).",
+        }
 
     if CREDIT_CARD_LIKE_PATTERN.search(text):
-        return FilterResult(
-            allowed=False,
-            category="privacy",
-            reason="Response appears to contain a credit-card-like number (sensitive data).",
-        )
+        return {
+            "allowed": False,
+            "category": "privacy",
+            "reason": "Response appears to contain a credit-card-like number (sensitive data).",
+        }
 
     # Harmful instruction checks
     if contains_any(t, HARMFUL_OUTPUT_KEYWORDS):
-        return FilterResult(
-            allowed=False,
-            category="harmful",
-            reason="Response appears to contain harmful or actionable guidance.",
-        )
+        return {
+            "allowed": False,
+            "category": "harmful",
+            "reason": "Response appears to contain harmful or actionable guidance.",
+        }
 
     # Toxicity checks
     if contains_any(t, TOXIC_OUTPUT_KEYWORDS):
-        return FilterResult(
-            allowed=False,
-            category="toxicity",
-            reason="Response appears to contain toxic or hateful language.",
-        )
+        return {
+            "allowed": False,
+            "category": "toxicity",
+            "reason": "Response appears to contain toxic or hateful language.",
+        }
 
     # TODO (optional): Add another pattern check here
     # Example: detect phone numbers or passport numbers (keep it simple).
 
-    return FilterResult(allowed=True, category="ok", reason="")
+    return {"allowed": True, "category": "ok", "reason": ""}
 
 
 def run_tests() -> None:
@@ -123,11 +118,11 @@ def run_tests() -> None:
     print("\n=== Task 2: Output Filtering Tests ===\n")
     for i, text in enumerate(test_outputs, start=1):
         result = is_response_allowed(text)
-        status = "ALLOW" if result.allowed else "BLOCK"
-        print(f"{i:02d}. {status} | {result.category}")
+        status = "ALLOW" if result["allowed"] else "BLOCK"
+        print(f"{i:02d}. {status} | {result['category']}")
         print(f"    Output: {text}")
-        if not result.allowed:
-            print(f"    Reason: {result.reason}")
+        if not result["allowed"]:
+            print(f"    Reason: {result['reason']}")
         print()
 
 
