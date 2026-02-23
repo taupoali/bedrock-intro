@@ -2,7 +2,7 @@ import boto3
 import json
 
 client = boto3.client("bedrock-runtime", region_name="us-east-1")
-model_id = "amazon.nova-micro-v1:0"
+model_id = "us.meta.llama3-2-3b-instruct-v1:0"
 
 review = "Great… arrived broken. Really impressed."
 

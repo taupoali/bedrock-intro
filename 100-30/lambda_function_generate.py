@@ -3,7 +3,7 @@ import urllib.parse
 
 # --- Configuration ---
 REGION = "us-east-1"
-MODEL_ID = "amazon.nova-micro-v1:0"
+MODEL_ID = "us.meta.llama3-2-3b-instruct-v1:0"
 
 s3 = boto3.client("s3", region_name=REGION)
 bedrock = boto3.client("bedrock-runtime", region_name=REGION)
