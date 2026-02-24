@@ -7,7 +7,7 @@ This script queries the custom metrics emitted in Lab 6 and prints:
 
 Run:
   export AWS_REGION=us-east-1
-  export BEDROCK_MODEL_ID=amazon.nova-micro-v1:0
+  export BEDROCK_MODEL_ID=us.meta.llama3-1-8b-instruct-v1:0
   python lab7_analyze_usage_and_performance.py
 
 Optional:
@@ -23,7 +23,7 @@ import boto3
 from botocore.config import Config
 
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
-MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "amazon.nova-micro-v1:0")
+MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "us.meta.llama3-1-8b-instruct-v1:0")
 NAMESPACE = os.environ.get("CW_METRIC_NAMESPACE", "Bedrock/Labs")
 HOURS = int(os.environ.get("HOURS", "24"))
 
@@ -112,8 +112,23 @@ def main():
     end = utc_now()
     start = end - timedelta(hours=HOURS)
 
+    print("\n=== Lab 7: Usage & Performance Analysis ===")
+    print(f"Region     : {AWS_REGION}")
+    print(f"Namespace  : {NAMESPACE}")
+    print(f"ModelId    : {MODEL_ID}")
+    print(f"Window     : last {HOURS} hour(s)")
+    print(f"Start (UTC): {start.isoformat()}")
+    print(f"End   (UTC): {end.isoformat()}")
+    print("\nQuerying CloudWatch metrics...")
+
     resp = query_metric_data(cw, start, end)
     results = {r["Id"]: r for r in resp.get("MetricDataResults", [])}
+
+    # Debug: Show what metrics were returned
+    print(f"\nDebug: Found {len(results)} metric result sets")
+    for metric_id, metric_data in results.items():
+        value_count = len(metric_data.get("Values", []))
+        print(f"  {metric_id}: {value_count} datapoints")
 
     # Totals
     total = (
@@ -130,14 +145,7 @@ def main():
     p90 = last_value(results.get("bedrocklatencyms_p90", {}))
     p99 = last_value(results.get("bedrocklatencyms_p99", {}))
 
-    print("\n=== Lab 7: Usage & Performance Analysis ===")
-    print(f"Region     : {AWS_REGION}")
-    print(f"Namespace  : {NAMESPACE}")
-    print(f"ModelId    : {MODEL_ID}")
-    print(f"Window     : last {HOURS} hour(s)")
-    print(f"Start (UTC): {start.isoformat()}")
-    print(f"End   (UTC): {end.isoformat()}")
-    print()
+    print("\n" + "="*50)
 
     print("Request counts:")
     print(f"  Total     : {total:.0f}")
@@ -156,7 +164,8 @@ def main():
     print(f"  p90 : {p90:.1f}" if p90 is not None else "  p90 : (no data yet)")
     print(f"  p99 : {p99:.1f}" if p99 is not None else "  p99 : (no data yet)")
 
-    print("\nTip: If you see '(no data yet)', run Lab 6 for a few minutes and try again.\n")
+    print("\nTip: CloudWatch metrics can take 5-15 minutes to appear after emission.")
+    print("     If you see no data, wait a few more minutes and try again.\n")
 
 
 if __name__ == "__main__":

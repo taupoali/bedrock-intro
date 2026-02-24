@@ -20,7 +20,7 @@ def try_converse(model_id: str):
         print(f"\nDENIED for model: {model_id}\n{code} - {msg}\n")
 
 if __name__ == "__main__":
-    allowed_model = "amazon.nova-micro-v1:0"
+    allowed_model = "us.meta.llama3-1-8b-instruct-v1:0"
     denied_model = os.environ.get("DENIED_MODEL_ID", "amazon.nova-lite-v1:0")  # change if needed
 
     try_converse(allowed_model)

@@ -17,7 +17,7 @@ APP_ROOT = Path(__file__).parent
 DOCS_DIR = APP_ROOT / "docs"
 
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
-MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "amazon.nova-micro-v1:0")
+MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "us.meta.llama3-1-8b-instruct-v1:0")
 
 # App logging/metrics destinations
 LOG_GROUP = os.environ.get("CW_LOG_GROUP", "/bedrock/labs/support-assistant")

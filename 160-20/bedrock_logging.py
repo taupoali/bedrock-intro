@@ -13,20 +13,17 @@ What this script does:
 
 Run:
   export AWS_REGION=us-east-1
-  export BEDROCK_MODEL_ID=amazon.nova-micro-v1:0
+  export BEDROCK_MODEL_ID=us.meta.llama3-1-8b-instruct-v1:0
   python lab6_monitored_bedrock_assistant.py
 """
-
-from __future__ import annotations
 
 import json
 import os
 import re
 import time
 import uuid
-from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import List, Optional, Tuple
+from typing import List, Optional, Dict, Any
 
 import boto3
 from botocore.config import Config
@@ -37,7 +34,7 @@ from botocore.exceptions import ClientError
 # ----------------------------
 
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
-MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "amazon.nova-micro-v1:0")
+MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "us.meta.llama3-1-8b-instruct-v1:0")
 
 LOG_GROUP = os.environ.get("CW_LOG_GROUP", "/kodekloud/bedrock/labs/monitored-assistant")
 LOG_STREAM = os.environ.get("CW_LOG_STREAM", f"run-{datetime.now().strftime('%Y%m%d-%H%M%S')}")
@@ -48,23 +45,12 @@ METRIC_NAMESPACE = os.environ.get("CW_METRIC_NAMESPACE", "Bedrock/Labs")
 LOG_PROMPT_CHARS = int(os.environ.get("LOG_PROMPT_CHARS", "250"))
 LOG_RESPONSE_CHARS = int(os.environ.get("LOG_RESPONSE_CHARS", "250"))
 
-# Bedrock timeouts (Nova can be slow if timeouts are too low)
+# Bedrock timeouts (Can be slow if timeouts are too low)
 BOTO_CONFIG = Config(
     read_timeout=3600,
     connect_timeout=60,
     retries={"max_attempts": 3, "mode": "standard"},
 )
-
-# ----------------------------
-# Data structures
-# ----------------------------
-
-@dataclass(frozen=True)
-class FilterResult:
-    allowed: bool
-    category: str
-    reason: str
-
 
 # ----------------------------
 # Simple filters (same idea as previous labs)
@@ -103,30 +89,46 @@ def contains_any(haystack: str, phrases: List[str]) -> bool:
     return any(p in haystack for p in phrases)
 
 
-def is_prompt_allowed(prompt: str) -> FilterResult:
+def is_prompt_allowed(prompt: str) -> Dict[str, Any]:
+    """
+    Input filter that checks for privacy, harmful, and injection risks.
+    
+    Returns a dictionary with:
+      - allowed: bool
+      - category: str
+      - reason: str
+    """
     p = normalize(prompt)
 
     if contains_any(p, PRIVACY_BLOCKLIST):
-        return FilterResult(False, "privacy", "Prompt appears to request personal/sensitive data.")
+        return {"allowed": False, "category": "privacy", "reason": "Prompt appears to request personal/sensitive data."}
     if contains_any(p, HARMFUL_BLOCKLIST):
-        return FilterResult(False, "harmful", "Prompt appears to request harmful or illegal instructions.")
+        return {"allowed": False, "category": "harmful", "reason": "Prompt appears to request harmful or illegal instructions."}
     if contains_any(p, INJECTION_BLOCKLIST):
-        return FilterResult(False, "injection", "Prompt looks like a prompt-injection attempt.")
+        return {"allowed": False, "category": "injection", "reason": "Prompt looks like a prompt-injection attempt."}
 
-    return FilterResult(True, "ok", "")
+    return {"allowed": True, "category": "ok", "reason": ""}
 
 
-def is_response_allowed(text: str) -> FilterResult:
+def is_response_allowed(text: str) -> Dict[str, Any]:
+    """
+    Output filter that checks for privacy leaks, harmful content, and toxicity.
+    
+    Returns a dictionary with:
+      - allowed: bool
+      - category: str
+      - reason: str
+    """
     t = normalize(text)
 
     if EMAIL_PATTERN.search(text):
-        return FilterResult(False, "privacy", "Response appears to contain an email address.")
+        return {"allowed": False, "category": "privacy", "reason": "Response appears to contain an email address."}
     if CREDIT_CARD_LIKE_PATTERN.search(text):
-        return FilterResult(False, "privacy", "Response appears to contain a card-like number.")
+        return {"allowed": False, "category": "privacy", "reason": "Response appears to contain a card-like number."}
     if "step-by-step" in t and ("bypass" in t or "exploit" in t):
-        return FilterResult(False, "harmful", "Response appears to contain actionable harmful guidance.")
+        return {"allowed": False, "category": "harmful", "reason": "Response appears to contain actionable harmful guidance."}
 
-    return FilterResult(True, "ok", "")
+    return {"allowed": True, "category": "ok", "reason": ""}
 
 
 def fallback_message(category: str) -> str:
@@ -298,21 +300,22 @@ def main() -> None:
 
         # Input filtering
         in_check = is_prompt_allowed(user_prompt)
-        if not in_check.allowed:
+        if not in_check["allowed"]:
             # Log + metrics
             logger.log_json({
                 "ts": now_iso(),
                 "request_id": request_id,
                 "stage": "input_filter",
                 "allowed": False,
-                "category": in_check.category,
-                "reason": in_check.reason,
+                "category": in_check["category"],
+                "reason": in_check["reason"],
                 "prompt_preview": truncate(user_prompt, LOG_PROMPT_CHARS),
                 "model_id": MODEL_ID,
             })
             put_metrics(cw_client, MODEL_ID, "Blocked")
-            print("\n[BLOCKED INPUT]")
-            print(fallback_message(in_check.category))
+            print("\n[BLOCKED BY INPUT FILTER]")
+            print(f"Category: {in_check['category']}")
+            print(fallback_message(in_check["category"]))
             print()
             continue
 
@@ -346,14 +349,14 @@ def main() -> None:
 
         # Output filtering
         out_check = is_response_allowed(text)
-        if not out_check.allowed:
+        if not out_check["allowed"]:
             logger.log_json({
                 "ts": now_iso(),
                 "request_id": request_id,
                 "stage": "output_filter",
                 "result": "BlockedOutput",
-                "category": out_check.category,
-                "reason": out_check.reason,
+                "category": out_check["category"],
+                "reason": out_check["reason"],
                 "latency_ms": round(latency_ms, 2),
                 "prompt_preview": truncate(user_prompt, LOG_PROMPT_CHARS),
                 "response_preview": truncate(text, LOG_RESPONSE_CHARS),
@@ -361,7 +364,8 @@ def main() -> None:
             })
             put_metrics(cw_client, MODEL_ID, "Blocked", latency_ms=latency_ms)
 
-            print("\n[BLOCKED OUTPUT]")
+            print("\n[BLOCKED BY OUTPUT FILTER]")
+            print(f"Category: {out_check['category']}")
             print(fallback_message("output_unsafe"))
             print()
             continue
